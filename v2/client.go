@@ -26,11 +26,15 @@ const (
 
 var nonce int64
 
+type BitfinexHTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type Client struct {
 	// Base URL for API requests.
 	BaseURL *url.URL
 
-	HTTPClient *http.Client
+	HTTPClient BitfinexHTTPClient
 
 	// Auth data
 	APIKey    string
@@ -48,7 +52,7 @@ func NewClient() *Client {
 	return NewClientWithHTTP(http.DefaultClient)
 }
 
-func NewClientWithHTTP(h *http.Client) *Client {
+func NewClientWithHTTP(h BitfinexHTTPClient) *Client {
 	baseURL, _ := url.Parse(BaseURL)
 
 	c := &Client{BaseURL: baseURL, HTTPClient: h}
@@ -129,7 +133,7 @@ func (c *Client) Credentials(key string, secret string) *Client {
 	return c
 }
 
-var httpDo = func(c *http.Client, req *http.Request) (*http.Response, error) {
+var httpDo = func(c BitfinexHTTPClient, req *http.Request) (*http.Response, error) {
 	return c.Do(req)
 }
 
